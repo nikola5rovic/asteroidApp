@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Asteroid App</title>
+	<meta charset="UTF-8">
+	<meta name="author" content="Nikola Petrovic">
+	<meta name="description" content="Asteroid App">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css">
+	<script type="text/javascript" src="lib/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="lib/jquery-ui.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12">
+					<h1>Welcome to Asteroid Finder</h1>
+					<p>Potentially dangerous Asteroids near Earth!<br>Find out when they are gonna be close to us...</p>
+				</div>
+			</div>
+				<div class="row">
+			        <div class="col-sm-3">
+		            	<h2>StartDate</h2>
+		                <input type="text" name="start_date" class="form-control" id="startDate" autocomplete="off">
+			        </div>
+			        <div class="col-sm-3">
+		            	<h2>EndDate</h2>
+		                <input type="text" name="end_date" class="form-control" id="endDate" autocomplete="off">
+			        </div>
+			    </div>
+			    <div class="row">
+			    	<div class="col-sm-6">
+			    		<button type="button" id="showAsteroids">Show Asteroids</button>
+			    	</div>
+			    </div>
+			    <div class="row">
+			    	<div class="col-sm-12">
+			    		<table id="tableOfAsteroids">
+			    			<!-- generated table-->
+			    		</table>
+			    </div>
+			    <div class='row'>
+			    	<div class='col-sm-4' id="autocomplete">
+			    		<!-- generated autocomplete button -->
+			    	</div>
+			    	<div class='col-sm-4' id="select_box">
+			    		<!-- generated select box -->
+			    	</div>
+			    </div>
+		</div>
+		<script>
+			$(document).ready(function(){
+				// Setting datepickers to 7 days range
+     			$('#startDate').datepicker({
+     				dateFormat: "yy-mm-dd", 
+     				onSelect: function(selectedDate) {
+		           		var date = $(this).datepicker('getDate');
+		           		$('#endDate').datepicker('option', 'minDate', date);
+		            	date.setDate(date.getDate() + 7);
+		            	$('#endDate').datepicker('setDate', date);
+      				}
+      			});
+			    $('#endDate').datepicker({
+			    	dateFormat: "yy-mm-dd", 
+			    	onSelect: function(selectedDate) {
+			        	$('#startDate').datepicker('option', 'maxDate', $(this).datepicker('getDate'));
+			    	}
+			    });
+
+			    // On click send link to NASA API
+			    $("#showAsteroids").click(function() {
+		    		var sd = $("#startDate").val();
+				    var ed = $("#endDate").val();
+				    var asteroids_endpoint = "https://api.nasa.gov/neo/rest/v1/feed?start_date="+sd+"&end_date="+ed+"&api_key=iuHUJ04qA8YfYycRM4WHfve312T1Dcar406FhjqS";     
+
+				    // Calling the functions to generete results in table
+					getAsteroidValues(asteroids_endpoint);
+				});
+
+			});
+
+			// Getting values from NASA API
+			function getAsteroidValues(endpoint){
+				//array var for all near Earth objects selected by dates
+				var dangerous_asteroids = [];
+				$.ajax({
+			      method: "GET",
+			      url: endpoint,
+			      dataType: "json",
+			      cache: false
+			    })
+			    .done(function(data){
+			    	for(var item1 in data.near_earth_objects){
+			    		for(var item2 in data.near_earth_objects[item1]){
+			    			if(data.near_earth_objects[item1][item2].is_potentially_hazardous_asteroid="true"){
+			    				dangerous_asteroids.push(data.near_earth_objects[item1][item2]);
+			    			}
+			    		}
+				 	}
+				 	prepareInfoForTable(dangerous_asteroids);
+				});
+			};
+
+			// Function to iterate JSON object and getting specified values
+			function prepareInfoForTable(astArrData) {
+				var tableData = [];
+				for(var a in astArrData) {	
+					//empty object var for data
+					var astObj = {};
+					if(astArrData[a].name) {
+						//getting name
+						astObj.name = astArrData[a].name;
+			
+						if(astArrData[a].close_approach_data) {
+							//getting close_approach_date
+							for(var b in astArrData[a].close_approach_data) {
+								if(astArrData[a].close_approach_data[b].close_approach_date) {
+									astObj.c_a_date = astArrData[a].close_approach_data[b].close_approach_date;
+								}
+
+								if(astArrData[a].close_approach_data[b].relative_velocity) {
+									//getting relative_velocity
+									for(var c in astArrData[a].close_approach_data[b].relative_velocity) {
+										if(astArrData[a].close_approach_data[b].relative_velocity.kilometers_per_hour) {
+											astObj.kph = astArrData[a].close_approach_data[b].relative_velocity.kilometers_per_hour;
+										}
+									}
+
+									//getting min and max diameter in meters
+									if(astArrData[a].estimated_diameter){
+										for(var d in astArrData[a]) {
+											if(astArrData[a].estimated_diameter){
+												for(var c in astArrData[a][d]){
+													if(astArrData[a][d].meters){ 
+														astObj.e_d_Min = astArrData[a][d].meters.estimated_diameter_min;
+														astObj.e_d_Max = astArrData[a][d].meters.estimated_diameter_max;
+													}
+												}
+											}
+										}
+									}
+								}	
+							}
+							tableData.push(astObj);
+						}
+					}
+				};
+				createTable(tableData);
+			};
+
+			//Function to generate the table, autocomplete btn
+			function createTable(dangerous_asteroids){
+				var table = "";
+				table += "<tr class='table'><th>Date</th><th>Name</th><th>Speed(km/h)</th><th>Min.Diameter(m)</th><th>Max.Diameter(m)</th></tr>";
+				// itereate trough asteroids, one object == one row
+				for(var i in dangerous_asteroids){
+					table += "<tr class='table'><td>"+ dangerous_asteroids[i].c_a_date +"</td>";
+					table += "<td class='dangerous_asteroids'>"+ dangerous_asteroids[i].name +"</td>";
+					table += "<td>"+ dangerous_asteroids[i].kph +"</td>";
+					table += "<td>"+ dangerous_asteroids[i].e_d_Min +"</td>";
+					table += "<td>"+ dangerous_asteroids[i].e_d_Max +"</td></tr><br>";
+				};
+				$("#tableOfAsteroids").html(table);
+
+				if(table) {
+					var autoCompBtn = "<button type='button' id='selBtn'>Autocomplete refresh Name</button>";
+					$("#autocomplete").html(autoCompBtn);
+				};
+				if(autoCompBtn && dangerous_asteroids){
+					var arrNameCol = [];
+					var eachName = "";
+					eachName += "<select size='25' id='namesOption'>";
+					for(var nBtn in dangerous_asteroids){
+						eachName += "<option><a href='#'>"+ dangerous_asteroids[nBtn].name +"</a></option>";
+					};
+					eachName += "</select>";
+				};
+				$("#selBtn").click(function(){
+			    	$("#select_box").html(eachName);
+			    });
+			};
+		</script>
+</body>
+</html>
