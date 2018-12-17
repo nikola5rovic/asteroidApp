@@ -12,7 +12,7 @@
 	<link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css">
 	<script type="text/javascript" src="lib/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="lib/jquery-ui.js"></script>
-	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
 	<body>
@@ -38,6 +38,9 @@
 			    		<button type="button" id="showAsteroids">Show Asteroids</button>
 			    	</div>
 			    </div>
+			    <div class="col-sm-12">
+		                <img src="img/asteroid-earth.jpg" alt="aproaching asteroid">
+			        </div>
 			    <div class="row">
 			    	<div class="col-sm-12">
 			    		<table id="tableOfAsteroids">
@@ -45,7 +48,7 @@
 			    		</table>
 			    </div>
 			    <div class='row'>
-			    	<div class='col-sm-4' id="autocomplete">
+			    	<div class='col-sm-6' id="autocomplete">
 			    		<!-- generated autocomplete button -->
 			    	</div>
 			    	<div class='col-sm-4' id="select_box">
@@ -156,7 +159,7 @@
 			//Function to generate the table, autocomplete btn
 			function createTable(dangerous_asteroids){
 				var table = "";
-				table += "<tr class='table'><th>Date</th><th>Name</th><th>Speed(km/h)</th><th>Min.Diameter(m)</th><th>Max.Diameter(m)</th></tr>";
+				table += "<tr class='table'><th id='date'>Date</th><th id='name'>Name</th><th id='speed'>Speed(km/h)</th><th id='minDim'>Min.Diameter(m)</th><th id='maxDim'>Max.Diameter(m)</th></tr>";
 				// itereate trough asteroids, one object == one row
 				for(var i in dangerous_asteroids){
 					table += "<tr class='table'><td>"+ dangerous_asteroids[i].c_a_date +"</td>";
@@ -166,20 +169,24 @@
 					table += "<td>"+ dangerous_asteroids[i].e_d_Max +"</td></tr><br>";
 				};
 				$("#tableOfAsteroids").html(table);
-
-				if($("#tableOfAsteroids").length) {
-					var autoCompBtn = "<button type='button' id='selBtn'>Autocomplete refresh Name</button>";
-					$("#autocomplete").html(autoCompBtn);
+				if($("#namesOption").length){
+					$("#namesOption").remove();
 				};
-				if(autoCompBtn && dangerous_asteroids){
-					var arrNameCol = [];
+
+				//creating autocomplete button
+				if($("#tableOfAsteroids").length) {
+					var autoCompBtn = "<button type='button' id='selBtn'>Autocomplete select box</button>";
+					$("#autocomplete").html(autoCompBtn);
 					var eachName = "";
 					eachName += "<select size='25' id='namesOption'>";
 					for(var nBtn in dangerous_asteroids){
-						eachName += "<option><a href='#'>"+ dangerous_asteroids[nBtn].name +"</a></option>";
+						//creating select box with names
+						eachName +="<option id='"+dangerous_asteroids[nBtn].name+"'>"+dangerous_asteroids[nBtn].name+"</option>";
+						// eachName += "<option><a href='https://www.google.com'>" + dangerous_asteroids[nBtn].name + "</a></option>";
 					};
 					eachName += "</select>";
 				};
+	
 				$("#selBtn").click(function(){
 			    	$("#select_box").html(eachName);
 			    });
