@@ -1,0 +1,62 @@
+body{
+	background: #400040;
+}
+h1, h2, p{
+	color: #fff;
+}
+#showAsteroids{
+	background-color: #5F7681;
+	color: #fff;
+	border: 1px solid black;
+	height: 40px;
+	width: 100%;
+	border-radius: 7px;
+	margin-top: 5px;
+	font-size: 20px;
+	outline: none;
+}
+#selBtn{
+	background-color: #5F7681;
+	color: #fff;
+	border: 1px solid black;
+	height: 40px;
+	width: 100%;
+	border-radius: 7px;
+	margin-top: 5px;
+	font-size: 20px;
+	outline: none;
+}
+#showAsteroids:hover{
+	background: #800080;
+}
+#selBtn:hover{
+	background: #800080;
+}
+.table{
+	border: 1px solid white;
+	color: #fff;
+}
+#tableOfAsteroids{
+	width: 100%;
+	margin-top: 50px;	
+	box-sizing: border-box;
+	float: left;
+	text-align: center;
+}
+th{
+	text-align: center;
+	padding: 7px;
+}
+#autocomplete{
+	margin-left: 15px;
+	margin-top: 10px;
+}
+#namesOption{
+	float: left;
+	width: 100%;
+	margin-top: 15px;
+	margin-left: 225px;
+	background: #400040;
+	color: #fff;
+}
+
